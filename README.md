@@ -1,4 +1,4 @@
-# Plant Therapy
+# Chatbots
 
 Hey there! This is still a work in progress. Come back later :) 
 
@@ -9,6 +9,18 @@ Hey there! This is still a work in progress. Come back later :)
 
 Credit where credit is due - jokes are from: 
  - https://www.rd.com/article/plant-puns/ 
+
+## Meet the bots 
+
+| Chatbot | Name | Description | 
+| ------------- | ------------- | ------------- |
+| <img src="/files/Plantey_saturated.PNG" width="100" height="100"> | Leafey | Leafey is here to provide some plant therapy. Leafey is very simple with just key phrase look ups based on user inputs.  | 
+
+<!---
+![Leafey Image Too Big](/files/Plantey_saturated.PNG)
+![Leafey Image Too Big](/files/Plantey_saturated.PNG =250x250)
+<img src="/files/Plantey_saturated.PNG" width="100" height="100">
+-->
 
 ## How this works 
 
