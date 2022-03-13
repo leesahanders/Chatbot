@@ -1,3 +1,5 @@
+# Shiny app for choosing and interacting with chatbots 
+
 library(shiny)
 library(dplyr)
 library(lubridate)
@@ -7,19 +9,19 @@ library(shinydashboard)
 library(shinythemes)
 library(odbc)
 
-# Load chatbot functions
+# Load chatbot function(s)
 source("chatbot_leafey.R")
 
-# Define UI  ----
+# Define UI  
 ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"), 
   
   # App title ----
   titlePanel("Let's talk : Playing around with chatbots"),
   
-  # Sidebar layout with input and output definitions ----
+  # Sidebar layout with input and output definitions
   sidebarLayout(
     
-    # Sidebar panel for inputs ----
+    # Sidebar panel for inputs 
     sidebarPanel(
       selectInput(inputId = "chatbot",
                   label = "Chatbot Selector",
@@ -30,16 +32,23 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
                   multiple = F
       ),
       
-      actionButton(inputId = "Submit",
-                   label = "Send"
+      # Adding div tag to the sidebar with git link           
+      tags$div(class="header", checked=NA,
+               #tags$p("Raw code located on Git"),
+               tags$a(href="https://github.com/leesahanders/Chatbot", "Raw code located on Git, check it out!")
       ),
       
-      width=2
+      width=3
       
     ),
     
-    # Main panel for displaying outputs ----
+    # Main panel for displaying outputs - Custom handling for loading gif when chatbot is "thinking"
     mainPanel(
+      
+      actionButton(inputId = "Submit",
+                   label = "Start chatting"
+      ),
+      
       tags$head(tags$style(type="text/css", "
                              #loadmessage {
                                position: fixed;
@@ -59,27 +68,30 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       conditionalPanel(
         condition="($('html').hasClass('shiny-busy'))",
         tags$img(src=busy)
-        # tags$img(src="busy_leafey.gif")
-      ),
-      
-      # Output:  ----
-      verbatimTextOutput("timed"),
-      
-      DTOutput("table")
-      
+      )
     )
-    
   ),
   
-  # adding the new div tag to the sidebar            
-  tags$div(class="header", checked=NA,
-           tags$p("Raw code located on Git"),
-           tags$a(href="https://git.illumina.com/landers/NovaSeqMaterialsTrace_Shiny.git", "Click Here!")
+  tags$head(tags$style(
+    type="text/css",
+    "#chatbotImg img {max-width: 100%; width: 100%; height: auto}"
+  )),
+  
+  sidebarPanel(
+    
+    imageOutput("chatbotImg"),
+    
+    width = 2),
+  
+  mainPanel(
+
+    DTOutput("table")
+    
   )
 )
 )
 
-# Define server logic  ----
+# Define server logic  
 server <- function(input, output) {
   
   #Connect server code snippet 
@@ -118,10 +130,15 @@ server <- function(input, output) {
     system(command, input = inputs)
   }
   
-  # Server side operations 
+  #Display chatbot image 
+  output$chatbotImg <- renderImage({
+    filename <- normalizePath(file.path('./files', paste(input$chatbot,'.PNG', sep='')))
+    list(src = filename, alt = paste("Chatbot Profile Image"))
+  }, deleteFile = FALSE)
   
-  #Start out with blank time as a placeholder
-  output$timed <- renderText({ NULL })
+  
+  #Start out with blank text as a placeholder
+  #output$timed <- renderText({ NULL })
   
   #Start out with a blank table as a placeholder
   output$table <- renderDT(
@@ -133,52 +150,47 @@ server <- function(input, output) {
     
     timed_t0 <- Sys.time()
     
-    if(input$InputSelect == "Test1") {
-      df <- data.frame("Test" = c("Test1"), "Directory" = c(getwd()))
+    if(input$chatbot == "Leafey") {
+      df <- data.frame("Chatbot" = c("Leafey"), "Directory" = c(getwd()))
       
-    } else if(input$InputSelect == "Test2") {
+    } else if(input$chatbot == "Test2") {
       df <- data.frame("Test" = c("Test2"), "Directory" = c(getwd()))
-      
-    } else if(input$InputSelect == "DataBaseExample") {
-      query <- paste0("--USE METAWH
-                      USE PLACEHOLDER
-                      SELECT * 
-                      FROM PLACEHOLDER
-                      LIMIT 1000
-                        ")
-      
-      con <- DBI::dbConnect(
-        odbc::odbc(),
-        Driver = "",
-        Server = "",
-        Database = "",
-        Warehouse = "",
-        #dbname = 'dbname',
-        #host = 'host',
-        port = 443,
-        UID = '',
-        #UID          = rstudioapi::askForPassword("Database user"),
-        #PWD          = rstudioapi::askForPassword("Database password"),
-        PWD = "",
-        authenticator = "externalbrowser"
-        #sslmode = 'require'
-        #Trusted_Connection = "yes"
-      )
-      
-      df = dbGetQuery(con, query)
-      dbDisconnect(con)
+    
+    # Holding onto this for later if upgrade to database storage   
+    # } else if(input$chatbot == "DataBaseExample") {
+    #   query <- paste0("--USE METAWH
+    #                   USE PLACEHOLDER
+    #                   SELECT * 
+    #                   FROM PLACEHOLDER
+    #                   LIMIT 1000
+    #                     ")
+    #   
+    #   con <- DBI::dbConnect(
+    #     odbc::odbc(),
+    #     Driver = "",
+    #     Server = "",
+    #     Database = "",
+    #     Warehouse = "",
+    #     #dbname = 'dbname',
+    #     #host = 'host',
+    #     port = 443,
+    #     UID = '',
+    #     #UID          = rstudioapi::askForPassword("Database user"),
+    #     #PWD          = rstudioapi::askForPassword("Database password"),
+    #     PWD = "",
+    #     authenticator = "externalbrowser"
+    #     #sslmode = 'require'
+    #     #Trusted_Connection = "yes"
+    #   )
+    #   
+    #   df = dbGetQuery(con, query)
+    #   dbDisconnect(con)
       
     } else {
       df <- data.frame(Par = c("NULL"), Par2 = c("Make a valid selection"))
     }
     
-    timed_tf <- Sys.time()
-    
-    timed_time = difftime(timed_tf, timed_t0, units = "secs")
-    
     Results <- df
-    
-    output$timed <- renderText({ paste0(timed_time, " seconds") })
     
     output$table <- renderDT(
       Results,

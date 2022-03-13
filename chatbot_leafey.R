@@ -1,4 +1,4 @@
-# General project script 
+# General project scripfor Leafey
 
 #TODO
 # Plant gif/image 
