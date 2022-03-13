@@ -7,30 +7,31 @@ library(shinydashboard)
 library(shinythemes)
 library(odbc)
 
+# Load chatbot functions
+source("chatbot_leafey.R")
 
 # Define UI  ----
 ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"), 
   
   # App title ----
-  titlePanel("Hello Shiny!"),
+  titlePanel("Let's talk : Playing around with chatbots"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
     
     # Sidebar panel for inputs ----
     sidebarPanel(
-      selectInput(inputId = "InputSelect",
-                  label = "Input Type",
+      selectInput(inputId = "chatbot",
+                  label = "Chatbot Selector",
                   choices = c("",
-                              "Test1" = "Test1",
-                              "Test2" = "Test2"
+                              "Leafey" = "Leafey"
                   ),
-                  selected = "Test1",
+                  selected = "Leafey",
                   multiple = F
       ),
       
       actionButton(inputId = "Submit",
-                   label = "Submit"
+                   label = "Send"
       ),
       
       width=2
@@ -57,7 +58,8 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       
       conditionalPanel(
         condition="($('html').hasClass('shiny-busy'))",
-        tags$img(src="busy.gif")
+        tags$img(src=busy)
+        # tags$img(src="busy_leafey.gif")
       ),
       
       # Output:  ----
