@@ -46,24 +46,22 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     
     mainPanel(
       
+      # Buttons for starting and clearing the chat
       fluidRow(
         column(3, div( style = "margin-top: 20px;", actionButton(inputId = "Submit", label = "Start chatting"))),
+        
         column(3, div( style = "margin-top: 20px;", actionButton(inputId = "Clear", label = "Clear/reset chat"))))
-      
-      # actionButton(inputId = "Submit",
-      #              label = "Start chatting"
-      # )
-      
-      #TODO: Add clear chat button 
     )
   ),
   
+  # Show the image of our chosen chatbot, auto scaled to fit
   tags$head(tags$style(
     type="text/css",
     "#chatbotImg img {max-width: 100%; width: 100%; height: auto}"
   )),
   
   sidebarPanel(
+    
     #Display chosen chatbot name and image 
     textOutput("chatbotName"),
     
@@ -72,17 +70,15 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     width = 2),
   
   mainPanel(
-    # Show chat message inputs : TODO: only have this show after user has selected a chatbot
+    # Show outputs and gif while "thinking"
+    # verbatimTextOutput("chatText"),
+    
+    # Show chat message inputs a la texting : TODO: only have this show after user has selected a chatbot
     fluidRow(
       column(11, textInput("chatInput", label = " ", width = "100%")),
       
       column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send")))
-      ),
-    
-    # Show outputs and gif while "thinking"
-    verbatimTextOutput("chatText"),
-    
-    #verbatimTextOutput("chatAllText"),
+    ),
     
     tableOutput("chat"),
     
@@ -151,12 +147,6 @@ server <- function(input, output) {
       Response = ""
     )
   })
-  # chat_user <- reactive({
-  #   data.frame(
-  #     who = "User",
-  #     value = input$chatInput
-  #   )
-  # })
   
   # When user hits submit add users question to chat log
   storedvalues <- observeEvent(input$Send, {
@@ -183,13 +173,13 @@ server <- function(input, output) {
     chat$dfnew
   })
   
-  #### User submits a message to the chatbot : TODO: Only make this possible after user has selected a chatbot ####
-  observeEvent(input$Send,{
-    
-    output$chatText <- renderText({ input$chatInput })
-    #output$chatAllText <- renderText({ input$chatInput })
-    
-  })
+  # #### User submits a message to the chatbot : TODO: Only make this possible after user has selected a chatbot ####
+  # observeEvent(input$Send,{
+  #   
+  #   #output$chatText <- renderText({ input$chatInput })
+  #   #output$chatAllText <- renderText({ input$chatInput })
+  #   
+  # })
   
   #### User selects clear chat ####
   observeEvent(input$Clear,{
@@ -205,13 +195,12 @@ server <- function(input, output) {
     
     output$chatbotName <- renderText({ "Select a Chatbot from the list above" })
     
-    # Clear the chat log : this isn't working
-    #chat <- reactiveValues(dfnew=data.frame(matrix(ncol = 2, nrow = 0)) ,count=1)
+    # Clear the chat log
+    chat$dfnew <- data.table(Question = as.character(), Response = as.character())
     
   })
   
-  # User selects a chatbot to talk with. Update the images. Load chat functions for selected chatbot. Display initial "hello". 
-  # TODO: hide chat window until this button is clicked
+  #### User selects a chatbot to talk with. Update the images. Load chat functions for selected chatbot. Display initial "hello". # TODO: hide chat window until this button is clicked ####
   observeEvent(input$Submit,{
     
     # Load chatbot Leafey
@@ -279,6 +268,9 @@ shinyApp(ui = ui, server = server)
 #   system(command, input = inputs)
 # }
 
+
+# Holding onto this for later if upgrade to database storage   
+
 # Inside the UI: 
 #DTOutput("table"),
 
@@ -291,7 +283,6 @@ shinyApp(ui = ui, server = server)
 # } else if(input$chatbot == "Test2") {
 #   df <- data.frame("Test" = c("Test2"), "Directory" = c(getwd()))
 
-# Holding onto this for later if upgrade to database storage   
 # } else if(input$chatbot == "DataBaseExample") {
 #   query <- paste0("--USE METAWH
 #                   USE PLACEHOLDER
