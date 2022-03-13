@@ -1,6 +1,9 @@
 # Shiny app for choosing and interacting with chatbots 
 # Lisa Anders w/ help from code linked in resources at bottom of app
 
+#TODO: Spread throughout app below as placeholders as well as here 
+#TODO: Add prompt actions based on timer (IE Leafey will prompt user every 15 min if they've been rained on or if they need water)
+
 #### Initialize ####
 library(shiny)
 library(dplyr)
@@ -45,7 +48,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       # Adding div tag to the sidebar with git link           
       tags$div(class="header", checked=NA,
                #tags$p("Raw code located on Git"),
-               tags$a(href="https://github.com/leesahanders/Chatbot", "Raw code located on Git, check it out!")
+               tags$a(href="https://github.com/leesahanders/Chatbot", "Raw code located on Git, check it out by clicking here")
       ),
       
       width=3
@@ -170,16 +173,19 @@ server <- function(input, output) {
   }, deleteFile = FALSE)
   output$userName <- renderText({ "Select a User Image from the list above" })
   
+  # Initialize a timer for time based chatbot prompts 
+  timer <- Sys.time()
+  
   #### Keep log of the chat conversation ####
   chat <- reactiveValues(dfnew=data.table(User = as.character(), Chatbot = as.character(), Who = as.character(), Message = as.character()),count=1)
   
   # When user asks a question capture that as a reactive variable
   chat_user <- reactive({
     data.frame(
-      User = input$chatInput,
+      User = paste("You:", input$chatInput),
       Chatbot = "",
       Who = "User",
-      Message = input$chatInput
+      Message = paste("You:", input$chatInput)
     )
   })
   
