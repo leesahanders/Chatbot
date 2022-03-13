@@ -82,8 +82,8 @@ model <- list(
 
 # Chat options when there are no key phrase matches
 default_model <- c(
-  "I didn't understand, try something else?",
-  "I'm sorry I'm just a plant. Can we try talking about something else?"
+  "I didn't understand, try something else? I like telling jokes :)",
+  "I'm sorry I'm just a plant. Can we try talking about something else? I like telling jokes :)"
 )
 
 # Function for matching key phrases to user input
