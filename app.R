@@ -11,6 +11,11 @@ library(shinythemes)
 library(odbc)
 library(shinyFeedback)
 library(data.table) 
+library(knitr)
+library(kableExtra)
+library(formattable)
+
+chatbot_text <- NULL
 
 #### Define UI  ####
 ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"), 
@@ -28,7 +33,8 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
                   choices = c("",
                               "Leafey" = "Leafey"
                   ),
-                  selected = "Leafey",
+                  selected = "",
+                  #selected = "Leafey",
                   multiple = F
       ),
       
@@ -67,20 +73,25 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     
     imageOutput("chatbotImg"),
     
-    width = 2),
+    position = "left", width = 2),
   
   mainPanel(
-    # Show outputs and gif while "thinking"
-    # verbatimTextOutput("chatText"),
     
     # Show chat message inputs a la texting : TODO: only have this show after user has selected a chatbot
     fluidRow(
-      column(11, textInput("chatInput", label = " ", width = "100%")),
+      column(9, textInput("chatInput", label = " ", width = "100%")),
       
-      column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send")))
+      column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send"))) 
+      #TODO: Map user pressing enter to Send button
     ),
     
-    tableOutput("chat"),
+    # tableOutput("chat"),
+    # dataTableOutput('chat'),
+    # verbatimTextOutput("chatText"),
+    
+    # Show gif while "thinking"
+    
+    htmlOutput("chatHTML"),
     
     tags$head(tags$style(type="text/css", "
                              #loadmessage {
@@ -103,7 +114,25 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       tags$img(src=busy)
     )
     
-  )
+  ),
+  
+  # Show the image of our chosen user, auto scaled to fit
+  tags$head(tags$style(
+    type="text/css",
+    "#userImg img {max-width: 100%; width: 100%; height: auto}"
+  )),
+  
+  sidebarPanel(
+    
+    tags$p("User panel placeholder : Upcoming"),
+    
+    #Display chosen user name and image 
+    #textOutput("userName"),
+    
+    imageOutput("userImg"),
+    
+    position = "right", width = 2),
+  
 )
 )
 
@@ -133,53 +162,100 @@ server <- function(input, output) {
     filename <- normalizePath(file.path('./files', paste('default','.PNG', sep='')))
     list(src = filename, alt = paste("Chatbot Profile Image"))
   }, deleteFile = FALSE)
-
   output$chatbotName <- renderText({ "Select a Chatbot from the list above" })
   
-  #### Keep track of the chat conversation ####
-  # chat <- reactiveValues(dfnew=data.frame(matrix(ncol = 2, nrow = 0)) ,count=1)
-  chat <- reactiveValues(dfnew=data.table(Question = as.character(), Response = as.character()),count=1)
+  # Display initial user image as the default question mark
+  output$userImg <- renderImage({
+    filename <- normalizePath(file.path('./files', paste('default','.PNG', sep='')))
+    list(src = filename, alt = paste("User Profile Image"))
+  }, deleteFile = FALSE)
+  #output$userName <- renderText({ "Upcoming: Select a User Image from the list above" })
+  
+  #### Keep log of the chat conversation ####
+  chat <- reactiveValues(dfnew=data.table(User = as.character(), Chatbot = as.character(), Who = as.character(), Message = as.character()),count=1)
   
   # When user asks a question capture that as a reactive variable
   chat_user <- reactive({
     data.frame(
-      Question = input$chatInput,
-      Response = ""
+      User = input$chatInput,
+      Chatbot = "",
+      Who = "User",
+      Message = input$chatInput
     )
   })
   
-  # When user hits submit add users question to chat log
+  # When user hits Send
   storedvalues <- observeEvent(input$Send, {
+    # Add users question to chat log
     if(nchar(input$chatInput) > 0)  {
       chat$dfnew <- rbind(chat$dfnew, chat_user())
       chat$count = chat$count + 1
     } else {
     }
+    
+    # Talk to appropriate chatbot for a response, check in valid list of chatbots : TODO: Add notification to pick an appropriate chatbot
+    if(nchar(input$chatInput) > 0 && input$chatbot %in% c("Leafey"))  {
+      
+      message = paste0("Leafey: ", chatbot(input$chatInput))
+      
+      #message = "This is a test"
+      chatbot_df <-  data.frame(
+        User = "",
+        Chatbot = message,
+        Who = "Chatbot",
+        Message = message
+      )
+
+      chat$dfnew <- rbind(chat$dfnew, chatbot_df)
+      chat$count = chat$count + 1
+
+    } else {
+      message = "Admin: Oops! You need to select a chatbot first. "
+      chatbot_df <-  data.frame(
+        User = "",
+        Chatbot = message,
+        Who = "Admin",
+        Message = message
+      )
+
+      chat$dfnew <- rbind(chat$dfnew, chatbot_df)
+      chat$count = chat$count + 1
+    }
+    
+    
   })
   
-  # When user hits clear/reset clear the log
-  # storedvalues <- observeEvent(input$Clear, {
-  #   if(nchar(input$chatInput) > 0)  {
-  #     chat$dfnew <- rbind(chat$dfnew, chat_user())
-  #     chat$count = chat$count + 1
-  #   } else {
-  #   }
-  # })
-  
-  # When Leafey replies add Leafey's response : TODO
-  
-  # Pass chat log to output for user to see 
-  output$chat <- renderTable({
-    chat$dfnew
+  # Output: Pass chat log to output for user to see : TODO: Update to use one column with left and right align
+  output$chatHTML <- renderText({
+    if(nrow(chat$dfnew)>0){
+      chat$dfnew %>%
+        mutate(User = cell_spec(User, background = ifelse(Who == "User", "lightblue", "white"))) %>%
+        mutate(Chatbot = cell_spec(Chatbot, background = ifelse(Who == "Chatbot", "lightgreen", #TODO set up coloring by Chatbot (Leafey is green)
+                                                                ifelse(Who == "User", "white", "Red")))) %>%
+        # mutate(Message = cell_spec(Message, color = ifelse(Who == "User", "red", "blue"), align = ifelse(Who == "User", "r", "l"))) %>%
+        select(Chatbot, User) %>%
+        kable(escape = F,
+            col.names = NULL, longtable = T,
+            booktabs = T, align = c("lr")
+            ) %>%
+        column_spec(column = 1, width_min = "3in", width_max = "3in") %>%
+        column_spec(column = 2, width_min = "3in", width_max = "3in") %>%
+        kable_styling(
+          font_size = 15,
+          bootstrap_options = c("responsive"),
+          full_width = T, position = "center"
+        )
+    } else {
+      kable(chat$dfnew %>%
+              select(Chatbot, User),
+            col.names = NULL, booktabs = T, align = c("lr")) %>%
+        kable_styling(
+          font_size = 15,
+          bootstrap_options = c("responsive"),
+          full_width = T, position = "center"
+        )
+    }
   })
-  
-  # #### User submits a message to the chatbot : TODO: Only make this possible after user has selected a chatbot ####
-  # observeEvent(input$Send,{
-  #   
-  #   #output$chatText <- renderText({ input$chatInput })
-  #   #output$chatAllText <- renderText({ input$chatInput })
-  #   
-  # })
   
   #### User selects clear chat ####
   observeEvent(input$Clear,{
@@ -196,7 +272,9 @@ server <- function(input, output) {
     output$chatbotName <- renderText({ "Select a Chatbot from the list above" })
     
     # Clear the chat log
-    chat$dfnew <- data.table(Question = as.character(), Response = as.character())
+    chat$dfnew <- data.table(User = as.character(), Chatbot = as.character(), Who = as.character(), Message = as.character())
+    
+    chatbot_text <- NULL
     
   })
   
@@ -207,7 +285,10 @@ server <- function(input, output) {
     if(input$chatbot == "Leafey") {
       source("chatbot_leafey.R")
       
-      output$chatText <- renderText({ "Leafey: Hello!" })
+      chatbot_text <- c("Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes.")
+      
+    # Initialize chat log
+      chat$dfnew <- data.table(User = c(""), Chatbot = c("Leafey: Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."), Who = c("Chatbot"), Message = c("Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."))
     }
     
     # Display updated chatbot image based on who user selected
@@ -229,6 +310,13 @@ shinyApp(ui = ui, server = server)
 #### References ####
 #https://stackoverflow.com/questions/65365805/how-to-align-button-next-to-text-input
 #https://stackoverflow.com/questions/56608214/how-can-i-keep-input-track-log-in-shiny-then-print-it-and-save-it
+#https://shiny.rstudio.com/articles/notifications.html
+#https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+#https://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
+#https://clarewest.github.io/blog/post/making-tables-shiny/
+#https://community.rstudio.com/t/shiny-contest-submission-table-editor-shiny-app/23600
+#https://bookdown.org/yihui/rmarkdown-cookbook/kable.html
+#https://stackoverflow.com/questions/62139431/how-can-i-make-the-first-col-aligned-to-left-and-the-rest-aligned-to-center-with
 
 #### Archived code snippets ####
 
