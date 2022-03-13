@@ -1,4 +1,5 @@
-# Loads and runs the chat model in the console  
+# Loads and runs the chat model for chatbot Leafey in the console  
+# Lisa Anders from code on https://www.r-bloggers.com/2021/01/eliza-chatbot-in-r-build-yourself-a-shrink/
 
 source("chatbot_leafey.R")
 

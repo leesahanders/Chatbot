@@ -1,4 +1,5 @@
 # Shiny app for choosing and interacting with chatbots 
+# Lisa Anders w/ help from code linked in resources at bottom of app
 
 #### Initialize ####
 library(shiny)
@@ -15,6 +16,7 @@ library(knitr)
 library(kableExtra)
 library(formattable)
 
+valid_chatbots <- c("Leafey")
 chatbot_text <- NULL
 
 #### Define UI  ####
@@ -33,8 +35,8 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
                   choices = c("",
                               "Leafey" = "Leafey"
                   ),
-                  selected = "",
-                  #selected = "Leafey",
+                  #selected = "", # For Dev, testing error cases
+                  selected = "Leafey",
                   multiple = F
       ),
       
@@ -60,6 +62,8 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     )
   ),
   
+  fluidRow(
+  
   # Show the image of our chosen chatbot, auto scaled to fit
   tags$head(tags$style(
     type="text/css",
@@ -69,30 +73,27 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
   sidebarPanel(
     
     #Display chosen chatbot name and image 
-    textOutput("chatbotName"),
-    
     imageOutput("chatbotImg"),
     
+    textOutput("chatbotName"),
+
     position = "left", width = 2),
   
   mainPanel(
     
-    # Show chat message inputs a la texting : TODO: only have this show after user has selected a chatbot
+    # Show chat message inputs a la texting 
+    # TODO: only have this show after user has selected a chatbot
     fluidRow(
       column(9, textInput("chatInput", label = " ", width = "100%")),
       
       column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send"))) 
-      #TODO: Map user pressing enter to Send button
+      #TODO: Map user pressing enter to Send button : https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny 
     ),
     
-    # tableOutput("chat"),
-    # dataTableOutput('chat'),
-    # verbatimTextOutput("chatText"),
-    
-    # Show gif while "thinking"
-    
+    # Show chat log
     htmlOutput("chatHTML"),
     
+    # Show gif while "thinking"
     tags$head(tags$style(type="text/css", "
                              #loadmessage {
                                position: fixed;
@@ -124,15 +125,16 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
   
   sidebarPanel(
     
+    imageOutput("userImg"),
+    
     tags$p("User panel placeholder : Upcoming"),
     
-    #Display chosen user name and image 
+    # TODO: Display chosen user name and image 
     #textOutput("userName"),
-    
-    imageOutput("userImg"),
     
     position = "right", width = 2),
   
+  )
 )
 )
 
@@ -153,9 +155,6 @@ server <- function(input, output) {
   
   #### Initialize with blanks ####
   output$chatText <- renderText({ "Please select a chatbot to start chatting" })
-  #output$chatInputText <- renderText({ input$chatInput })
-  #output$chatAllText <- renderText({ input$chatInput })
-  #output$chatAllText <- renderText({ NULL })
   
   # Display initial chatbot image as the default question mark to prompt users to select a chatbot 
   output$chatbotImg <- renderImage({
@@ -169,7 +168,7 @@ server <- function(input, output) {
     filename <- normalizePath(file.path('./files', paste('default','.PNG', sep='')))
     list(src = filename, alt = paste("User Profile Image"))
   }, deleteFile = FALSE)
-  #output$userName <- renderText({ "Upcoming: Select a User Image from the list above" })
+  output$userName <- renderText({ "Select a User Image from the list above" })
   
   #### Keep log of the chat conversation ####
   chat <- reactiveValues(dfnew=data.table(User = as.character(), Chatbot = as.character(), Who = as.character(), Message = as.character()),count=1)
@@ -186,6 +185,7 @@ server <- function(input, output) {
   
   # When user hits Send
   storedvalues <- observeEvent(input$Send, {
+    
     # Add users question to chat log
     if(nchar(input$chatInput) > 0)  {
       chat$dfnew <- rbind(chat$dfnew, chat_user())
@@ -193,12 +193,15 @@ server <- function(input, output) {
     } else {
     }
     
-    # Talk to appropriate chatbot for a response, check in valid list of chatbots : TODO: Add notification to pick an appropriate chatbot
-    if(nchar(input$chatInput) > 0 && input$chatbot %in% c("Leafey"))  {
+    # Talk to appropriate chatbot for a response, check in valid list of chatbots 
+    if(nchar(input$chatInput) > 0 && input$chatbot %in% c(valid_chatbots))  {
       
       message = paste0("Leafey: ", chatbot(input$chatInput))
       
-      #message = "This is a test"
+      # Let's wait a little bit so users can see the loading gif. Making it random so it feels addicting!
+      
+      Sys.sleep(runif(1, 0.1, 2))
+      
       chatbot_df <-  data.frame(
         User = "",
         Chatbot = message,
@@ -222,17 +225,17 @@ server <- function(input, output) {
       chat$count = chat$count + 1
     }
     
-    
   })
   
-  # Output: Pass chat log to output for user to see : TODO: Update to use one column with left and right align
+  # Output: Pass chat log to output for user to see 
+  # TODO: Update to use one column (Message) with left and right align and overlay of "thought bubbles"
   output$chatHTML <- renderText({
     if(nrow(chat$dfnew)>0){
       chat$dfnew %>%
         mutate(User = cell_spec(User, background = ifelse(Who == "User", "lightblue", "white"))) %>%
-        mutate(Chatbot = cell_spec(Chatbot, background = ifelse(Who == "Chatbot", "lightgreen", #TODO set up coloring by Chatbot (Leafey is green)
-                                                                ifelse(Who == "User", "white", "Red")))) %>%
-        # mutate(Message = cell_spec(Message, color = ifelse(Who == "User", "red", "blue"), align = ifelse(Who == "User", "r", "l"))) %>%
+        mutate(Chatbot = cell_spec(Chatbot, background = ifelse(Who == "Chatbot", col, #TODO set up coloring by Chatbot (Leafey is green)
+                                                                ifelse(Who == "User", "white", 
+                                                                       "lightpink")))) %>%
         select(Chatbot, User) %>%
         kable(escape = F,
             col.names = NULL, longtable = T,
@@ -246,6 +249,7 @@ server <- function(input, output) {
           full_width = T, position = "center"
         )
     } else {
+      # Addition for case without a first row causing error. This is essentially just a dummy table so it won't print an error. 
       kable(chat$dfnew %>%
               select(Chatbot, User),
             col.names = NULL, booktabs = T, align = c("lr")) %>%
@@ -281,13 +285,9 @@ server <- function(input, output) {
   #### User selects a chatbot to talk with. Update the images. Load chat functions for selected chatbot. Display initial "hello". # TODO: hide chat window until this button is clicked ####
   observeEvent(input$Submit,{
     
-    # Load chatbot Leafey
+    # Load chatbot Leafey and initialize chat log
     if(input$chatbot == "Leafey") {
       source("chatbot_leafey.R")
-      
-      chatbot_text <- c("Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes.")
-      
-    # Initialize chat log
       chat$dfnew <- data.table(User = c(""), Chatbot = c("Leafey: Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."), Who = c("Chatbot"), Message = c("Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."))
     }
     
@@ -312,11 +312,12 @@ shinyApp(ui = ui, server = server)
 #https://stackoverflow.com/questions/56608214/how-can-i-keep-input-track-log-in-shiny-then-print-it-and-save-it
 #https://shiny.rstudio.com/articles/notifications.html
 #https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
-#https://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
 #https://clarewest.github.io/blog/post/making-tables-shiny/
 #https://community.rstudio.com/t/shiny-contest-submission-table-editor-shiny-app/23600
 #https://bookdown.org/yihui/rmarkdown-cookbook/kable.html
 #https://stackoverflow.com/questions/62139431/how-can-i-make-the-first-col-aligned-to-left-and-the-rest-aligned-to-center-with
+#https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
+#https://debruine.github.io/shinyintro/sharing.html
 
 #### Archived code snippets ####
 

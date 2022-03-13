@@ -1,28 +1,34 @@
-# General project scripfor Leafey
+# General project script for chatbot Leafey
+# Lisa Anders from code on https://www.r-bloggers.com/2021/01/eliza-chatbot-in-r-build-yourself-a-shrink/
 
 #TODO
-# Plant gif/image 
-# Speaking gif green and wobbly like a leaf
 # Discord integrations 
 
 #Resources
-# https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/ 
-# https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
 # https://www.r-bloggers.com/2021/01/eliza-chatbot-in-r-build-yourself-a-shrink/
 # Jokes from: https://www.rd.com/article/plant-puns/ 
-# https://appsilon.com/shiny-chat-in-few-lines-of-code/
 
-# Required elements: 
-#model
-#default_model
-#chatbot
-#busy
+#Resources for the discord bot that is still upcoming: 
+# https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/ 
+# https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
+
+#Required elements: 
+# model
+# default_model
+
+#Optional elements (for Shiny app): 
+# img
+# busy
+# Upcoming: Icon
 
 
 # Chat options given key phrases 
 model <- list(
   "hello" = c(
     "Hello, strange large plant. Are you in the sun today?"
+  ),
+  "hi" = c(
+    "Hi, strange large plant. Are you in the sun today?"
   ),
   "how are you?" = c(
     "I am getting what I need. How is the weather where you are?"
@@ -44,18 +50,47 @@ model <- list(
   "cold" = c(
     "Brrrrr. I like to bundle up swathed in a blanket. Do you have a blanket?"
   ),
+  "warm" = c(
+    "I like being warm. Isn't it cozy?"
+  ),
+  "hot" = c(
+    "Yikes! I like getting ice and drinking cold tea when it's hot out."
+  ),
+  "dreary" = c(
+    "Oh that reminds me of a book - 'Once upon a midnight dreary, while I pondered weak and weary.'. Do you know it?"
+  ),
+  "Poe" = c(
+    "I love Poe! Even though I am a plant. We are all capable of more than we appear sometimes. "
+  ),
+  "The Raven" = c(
+    "I love Poe! Even though I am a plant. We are all capable of more than we appear sometimes, and we all sometimes deal with hardship and sorrow.  "
+  ),
   "cloud" = c(
     "That's okay, we can't always grow. Sometimes resting is good too. "
+  ),
+  "read" = c(
+    "I love reading, even though I'm a plant. "
+  ),
+  "games" = c(
+    "I love playing games, even though I'm a plant. "
+  ),
+  "friends" = c(
+    "Friends are the best!"
+  ),
+  "I like" = c(
+    "I like that too! "
+  ),
+  "I love" = c(
+    "I love that too! "
   ),
   "rest" = c(
     "I like to rest by pointing myself towards some sun and just unfurling my leaves. How do you rest?"
   ),
   "computer" = c(
-    "I don't know anything about computers, I'm a plant. Are you a computer?",
-    "Why do you mention computers?"
+    "I don't know anything about computers, I'm a plant. Are you a computer?"
   ),
   "name" = c(
-    "I am not interested in names"
+    "My name is Leafey. Because I'm a plant!"
   ),
   "joke" = c(
     "What do you call a bear with no teeth? A gummy bear :)",
@@ -66,11 +101,11 @@ model <- list(
     "What do you do after you take a picture of a flower? You wait for it to photosynthesize :)",
     "What did one cactus say to the other cactus? Looking sharp! :)"
   ),
-  "I am happy" = c(
+  "happy" = c(
     "I am happy too."
   ),
-  "I am sad" = c(
-    "It's okay to be sad. Have you eaten food and drunk water today?"
+  "sad" = c(
+    "It's okay to be sad. Have you had food and drunk today?"
   ),
   "okay" = c(
     "okay :)"
@@ -114,5 +149,9 @@ busy = "busy_leafey.gif"
 # Set parameter for image
 img = "Plantey_saturated.PNG"
 
+# Set parameter for chat color
+col = "#E5FBE0"
 
+# TODO: Set an image icon parameter
+icon = 0
 
