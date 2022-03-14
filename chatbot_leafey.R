@@ -30,6 +30,9 @@ model <- list(
   "hi" = c(
     "Hi, strange large plant. Are you in the sun today?"
   ),
+  "hey" = c(
+    "Hey, strange large plant. Are you in the sun today?"
+  ),
   "how are you?" = c(
     "I am getting what I need. How is the weather where you are?"
   ),
@@ -43,6 +46,9 @@ model <- list(
     "Sun!",
     "Sun!!!",
     "Sun :)"
+  ),
+  "weather" = c(
+    "I like all weather! How's the weather where you are? Cold, warm, rainy, snowing, sunny, cloudy, dreary?"
   ),
   "snow" = c(
     "During the long dark hibernation months I like to plan for what I'll do when the sun comes out. "
@@ -117,8 +123,8 @@ model <- list(
 
 # Chat options when there are no key phrase matches
 default_model <- c(
-  "I didn't understand, try something else? I like telling jokes :)",
-  "I'm sorry I'm just a plant. Can we try talking about something else? I like telling jokes :)"
+  "I didn't understand, try something else? Try asking 'Tell me a joke' :)",
+  "I'm sorry I'm just a plant. Can we try talking about something else? Try asking 'Tell me a joke' :)"
 )
 
 # Function for matching key phrases to user input
