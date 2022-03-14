@@ -21,6 +21,7 @@ library(data.table)
 library(knitr)
 library(kableExtra)
 library(formattable)
+library(gitlink)
 
 valid_chatbots <- c("Leafey")
 chatbot_text <- NULL
@@ -49,6 +50,8 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
   
   # App title ----
   titlePanel("Let's talk : Playing around with chatbots"),
+  
+  ribbon_css("https://github.com/leesahanders/Chatbot", text = "Code on Github", fade = FALSE),
   
   # Sidebar layout with input and output definitions
   sidebarLayout(
@@ -116,7 +119,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       column(9, textInput("chatInput", label = " ", width = "100%")),
       
       column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send"))) 
-      #TODO: Map user pressing enter to Send button : https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny 
+  
     ),
     
     # Show chat log
@@ -148,20 +151,6 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       
       tags$img(src="busy_leafey.gif")
       
-      # busy = "files/busy_leafey.gif",
-      # tags$img(src="files/busy_leafey.gif")
-      
-      # busy = "busy_leafey.gif",
-      # tags$img(src="www/busy_leafey.gif")
-      
-      # busy = "../www/busy_leafey.gif",
-      # busy = "\\www\\busy_leafey.gif",
-      # busy = "www/busy_leafey.gif",
-      # busy = "busy_leafey.gif",
-      # busy = "busy_leafey.gif",
-      # tags$img(src=busy)
-      #tags$img(src=busy)
-      
     )
     
   ),
@@ -176,7 +165,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     
     imageOutput("userImg"),
     
-    tags$p("User panel placeholder : Upcoming"),
+    tags$p("User panel placeholder"),
     
     # TODO: Display chosen user name and image 
     #textOutput("userName"),
@@ -188,7 +177,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
 )
 
 #### Define server logic  ####
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   #### TODO: Error checking and provide feedback to user ####
   # chatbot_ready_warning <- reactive({
@@ -213,8 +202,9 @@ server <- function(input, output) {
   output$chatbotName <- renderText({ "Select a Chatbot from the list above" })
   
   # Display initial user image as the default question mark
+  # TODO: Let user select their profile image 
   output$userImg <- renderImage({
-    filename <- normalizePath(file.path('./files', paste('default','.PNG', sep='')))
+    filename <- normalizePath(file.path('./files', paste('user','.PNG', sep='')))
     list(src = filename, alt = paste("User Profile Image"))
   }, deleteFile = FALSE)
   output$userName <- renderText({ "Select a User Image from the list above" })
@@ -242,6 +232,9 @@ server <- function(input, output) {
     if(nchar(input$chatInput) > 0)  {
       chat$dfnew <- rbind(chat$dfnew, chat_user())
       chat$count = chat$count + 1
+      
+      # Clear the text input after user hits send
+      updateTextInput(session,"chatInput", value="")
     } else {
     }
     
@@ -334,7 +327,8 @@ server <- function(input, output) {
     
   })
   
-  #### User selects a chatbot to talk with. Update the images. Load chat functions for selected chatbot. Display initial "hello". # TODO: hide chat window until this button is clicked ####
+  #### User selects a chatbot to talk with. Update the images. Load chat functions for selected chatbot. Display initial "hello". 
+  # TODO: hide chat window until this button is clicked ####
   observeEvent(input$Submit,{
     
     # Load chatbot Leafey and initialize chat log
@@ -371,6 +365,7 @@ shinyApp(ui = ui, server = server)
 #https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
 #https://debruine.github.io/shinyintro/sharing.html
 #https://stackoverflow.com/questions/26004302/how-to-display-a-busy-indicator-in-a-shiny-app
+#https://github.com/colearendt/gitlink
 
 #### Archived code snippets ####
 

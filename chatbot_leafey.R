@@ -34,7 +34,7 @@ model <- list(
     "Hey, strange large plant. Are you in the sun today?"
   ),
   "how are you?" = c(
-    "I am getting what I need. How is the weather where you are?"
+    "I am getting what I need. How is the weather where you are? Cold, warm, hot, rainy, snowing, sunny, cloudy, dreary?"
   ),
   "sorry" = c(
     "Plants don't apologize, you don't need to either :) "
@@ -107,8 +107,15 @@ model <- list(
     "What do you do after you take a picture of a flower? You wait for it to photosynthesize :)",
     "What did one cactus say to the other cactus? Looking sharp! :)"
   ),
+  "funny" = c(
+    "I like making my friends laugh",
+    "See, plants are fun!"
+  ),
   "happy" = c(
     "I am happy too."
+  ),
+  "good" = c(
+    "Good day to you too!"
   ),
   "sad" = c(
     "It's okay to be sad. Have you had food and drunk today?"
