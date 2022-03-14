@@ -2,6 +2,8 @@
 
 Hey there! This is still a work in progress. Feel free to browse around and if you have any questions please feel free to reach out to my email at lisamaeanders@gmail.com . 
 
+The goal of this project was to build a basic [chatbot](https://en.wikipedia.org/wiki/Chatbot) and explore a couple ways of hosting it. You can check it out in action in a Shiny app hosted at [leesahanders.shinyapps.io/Chatbot/](https://leesahanders.shinyapps.io/Chatbot/)
+
 ## Meet the bots
 
 | Chatbot | Name | Description | 
@@ -9,21 +11,19 @@ Hey there! This is still a work in progress. Feel free to browse around and if y
 | <img src="/files/Plantey_saturated.PNG" width="100" height="100"> | Leafey | Leafey is here to provide some plant therapy. Leafey is very simple with just key phrase look ups based on user inputs.  | 
 
 <!---
+This is a comment
+
+Accessed from: https://leesahanders.shinyapps.io/Chatbot/ 
+Admin link: https://www.shinyapps.io/admin/#/application/5843948/logs 
+
 ![Leafey Image Too Big](/files/Plantey_saturated.PNG)
 ![Leafey Image Too Big](/files/Plantey_saturated.PNG =250x250)
 <img src="/files/Plantey_saturated.PNG" width="100" height="100">
 -->
 
-It's just the one bot for now, but it's set up to be reasonably scaleable. 
+It's just the one bot for now, but check back later and there might be more added. 
 
-And importantly - credit where credit is due - jokes are from: 
- - https://www.rd.com/article/plant-puns/ 
-
-## How this works 
-
-The goal of this project was to build a basic [chatbot](https://en.wikipedia.org/wiki/Chatbot) and explore various integrations by having it interface with users in a couple different ways. 
-
-### Chat model
+## Chat model
 
 Shout out to the incredible resource at https://www.r-bloggers.com/2021/01/eliza-chatbot-in-r-build-yourself-a-shrink/ where the core code parts for the chatbot are from. 
 
@@ -34,11 +34,13 @@ At it's most basic the important elements are:
 
 Essentially it works by using an input from the user and searching for key phrases and based on what it finds for a match returning the best matched answer. For more details check out the writeout the folks at r-bloggers did (linked above). 
 
-### Hosting 
+More chatbots can be created by copying the chatbot_leafey file and changing the name and contents to reflect the personality of the new one. 
+
+## Hosting 
 
 The chat bot can now be kicked off inside whichever system wanted - whether that is in a shiny app, discord integration, or just in console using a while loop. 
 
-#### Console 
+### Console 
 
 Shout out to the incredible resource at https://www.r-bloggers.com/2021/01/eliza-chatbot-in-r-build-yourself-a-shrink/ where this code is from for kicking off your chatbot to interact with in the console until you hit exit:  
 
@@ -51,13 +53,80 @@ while (TRUE) {
 }
 ```
 
-#### Shiny
+### Shiny
 
-The Shiny app is essentially just a wrapper for the chatbot functions. The trick was setting it up so that the user could select a chatbot and it would load the rest (so it would be scaleable), and capturing the chat with a log so that the user can see the full history of the conversation. 
+The Shiny app is essentially just a wrapper for the chatbot functions. The trick was setting it up so that the user could select a chatbot and it would load the rest (so it would be reasonably scaleable), and capturing the chat with a log so that the user can see the full history of the conversation. 
 
 In order to use this feel free to clone the project and update the various sections as needed. Pay close attention to the section happening after the submit / chatbot selection action button is triggered. This is where the loading in of the appropriate chatbot is happening and various parameters are being set/reset. 
 
-I used a bunch of resources for getting the details:
+#### Github link ribbon 
+
+Courtesy the [gitlink](https://github.com/colearendt/gitlink). 
+
+``` r
+ribbon_css("https://github.com/leesahanders/Chatbot", text = "Code on Github", fade = FALSE),
+```
+
+#### Using the enter key for triggering the action button 
+
+Huge thanks to [Rahul Mishra](https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny) for finding an easy to use solution. 
+
+In the initialization of the app include the javascript function: 
+
+``` r
+jscode <- '
+$(function() {
+  var $els = $("[data-proxy-click]");
+  $.each(
+    $els,
+    function(idx, el) {
+      var $el = $(el);
+      var $proxy = $("#" + $el.data("proxyClick"));
+      $el.keydown(function (e) {
+        if (e.keyCode == 13) {
+          $proxy.click();
+        }
+      });
+    }
+  );
+});
+'
+```
+
+Then inside the UI include the call to the javascript where "Send" is changed to the label for your actionButton: 
+
+``` r
+  tags$head(tags$script(HTML(jscode))),
+  `data-proxy-click` = "Send",
+```
+
+#### Custom loading gif 
+
+Upcoming! 
+
+#### Image look up and display, autoscaling
+
+Upcoming!
+
+#### Making a table look like a texting screen
+
+Upcoming! 
+
+### Discord 
+
+Upcoming!
+
+Currently eyeing these resources for learning how to handle the integrations: 
+ - https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/
+ - https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
+
+
+## References
+
+Credit where credit is due - jokes are from: 
+ - https://www.rd.com/article/plant-puns/ 
+
+For the Shiny app development I used a bunch of resources for getting the details:
 
  - https://stackoverflow.com/questions/65365805/how-to-align-button-next-to-text-input
  - https://stackoverflow.com/questions/56608214/how-can-i-keep-input-track-log-in-shiny-then-print-it-and-save-it
@@ -70,14 +139,4 @@ And some resources that are more aspirational, for future plans and features:
  - https://shiny.rstudio.com/articles/notifications.html
  - https://community.rstudio.com/t/shiny-contest-submission-table-editor-shiny-app/23600
  - https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
-
-#### Discord 
-
-Upcoming!
-
-Currently eyeing these resources for learning how to handle the integrations: 
- - https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/
- - https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
-
-
 
