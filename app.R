@@ -168,7 +168,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       
       imageOutput("userImg"),
       
-      tags$p("User panel: This is you!"),
+      tags$p("User panel: This is you"),
       
       # TODO: Display chosen user name and image 
       #textOutput("userName"),

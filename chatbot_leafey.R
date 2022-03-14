@@ -137,10 +137,10 @@ model <- list(
   ),
   "water" = c(
     "I love water!!"
-  ),
-  "..." = c(
-    "What's wrong?"
-  )
+  )#,
+  # "..." = c(
+  #   "What's wrong?"
+  # )
 )
 
 # Chat options when there are no key phrase matches
