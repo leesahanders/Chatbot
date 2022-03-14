@@ -5,6 +5,7 @@
 #TODO: Add prompt actions based on timer (IE Leafey will prompt user every 15 min if they've been rained on or if they need water)
 
 #Accessed from: https://leesahanders.shinyapps.io/Chatbot/ 
+#Admin link: https://www.shinyapps.io/admin/#/application/5843948/logs 
 
 #### Initialize ####
 library(shiny)
@@ -23,6 +24,25 @@ library(formattable)
 
 valid_chatbots <- c("Leafey")
 chatbot_text <- NULL
+
+# Javascript for getting the action button to be triggered on user pressing enter 
+jscode <- '
+$(function() {
+  var $els = $("[data-proxy-click]");
+  $.each(
+    $els,
+    function(idx, el) {
+      var $el = $(el);
+      var $proxy = $("#" + $el.data("proxyClick"));
+      $el.keydown(function (e) {
+        if (e.keyCode == 13) {
+          $proxy.click();
+        }
+      });
+    }
+  );
+});
+'
 
 #### Define UI  ####
 ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"), 
@@ -84,6 +104,10 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
 
     position = "left", width = 2),
   
+  # Javascript for getting the action button to be triggered on user pressing enter 
+  tags$head(tags$script(HTML(jscode))),
+  `data-proxy-click` = "Send",
+  
   mainPanel(
     
     # Show chat message inputs a la texting 
@@ -118,6 +142,10 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     conditionalPanel(
       condition="($('html').hasClass('shiny-busy'))",
       
+      #busy = "busy_leafey.gif",
+      
+      #TODO: Fix this so it can be changed programmatically
+      
       tags$img(src="busy_leafey.gif")
       
       # busy = "files/busy_leafey.gif",
@@ -132,7 +160,7 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       # busy = "busy_leafey.gif",
       # busy = "busy_leafey.gif",
       # tags$img(src=busy)
-      # tags$img(src=busy)
+      #tags$img(src=busy)
       
     )
     

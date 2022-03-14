@@ -103,7 +103,7 @@ model <- list(
     "What happens when a flower blushes? It turns rosy :)",
     "What did the flower tell the other flower after she told a joke? I was just pollen your leg! :)",
     "What did the flower decide to study in college? STEM. :)",
-    "What did the flower tell the taxi driver so he’d go faster? Floret :)",
+    "What did the flower tell the taxi driver so hed go faster? Floret :)",
     "What do you do after you take a picture of a flower? You wait for it to photosynthesize :)",
     "What did one cactus say to the other cactus? Looking sharp! :)"
   ),
@@ -114,6 +114,9 @@ model <- list(
     "It's okay to be sad. Have you had food and drunk today?"
   ),
   "okay" = c(
+    "okay :)"
+  ),
+  "ok" = c(
     "okay :)"
   ),
   "water" = c(
@@ -150,7 +153,7 @@ chatbot <- function(input) {
 }
 
 # Set parameter for busy gif
-#busy = "./www/busy_leafey.gif" 
+busy = "busy_leafey.gif" 
 
 # Set parameter for image
 img = "Plantey_saturated.PNG"
