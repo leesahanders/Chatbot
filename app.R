@@ -3,6 +3,8 @@
 
 #TODO: Spread throughout app below as placeholders as well as here 
 #TODO: Add prompt actions based on timer (IE Leafey will prompt user every 15 min if they've been rained on or if they need water)
+#TODO: Fix the log so that it will have a scrollbar and automatically scroll down as new answers are added https://stackoverflow.com/questions/54903663/r-shiny-app-making-a-log-that-scrolls-down-automatically 
+#TODO: Migrate from kable to DT https://rstudio.github.io/DT/shiny.html 
 
 #Accessed from: https://leesahanders.shinyapps.io/Chatbot/ 
 #Admin link: https://www.shinyapps.io/admin/#/application/5843948/logs 
@@ -25,6 +27,9 @@ library(gitlink)
 
 valid_chatbots <- c("Leafey")
 chatbot_text <- NULL
+
+# Set a default starting busy gif src
+busy = "busy_leafey.gif"
 
 # Javascript for getting the action button to be triggered on user pressing enter 
 jscode <- '
@@ -70,12 +75,6 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
       
       #TODO: adding a "select user image" option
       
-      # Adding div tag to the sidebar with git link           
-      tags$div(class="header", checked=NA,
-               #tags$p("Raw code located on Git"),
-               tags$a(href="https://github.com/leesahanders/Chatbot", "Raw code located on Git, check it out by clicking here")
-      ),
-      
       width=3
       
     ),
@@ -92,88 +91,90 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
   
   fluidRow(
   
-  # Show the image of our chosen chatbot, auto scaled to fit
-  tags$head(tags$style(
-    type="text/css",
-    "#chatbotImg img {max-width: 100%; width: 100%; height: auto}"
-  )),
-  
-  sidebarPanel(
+    # Show the image of our chosen chatbot, auto scaled to fit
+    tags$head(tags$style(
+      type="text/css",
+      "#chatbotImg img {max-width: 100%; width: 100%; height: auto}"
+    )),
     
-    #Display chosen chatbot name and image 
-    imageOutput("chatbotImg"),
-    
-    textOutput("chatbotName"),
-
-    position = "left", width = 2),
-  
-  # Javascript for getting the action button to be triggered on user pressing enter 
-  tags$head(tags$script(HTML(jscode))),
-  `data-proxy-click` = "Send",
-  
-  mainPanel(
-    
-    # Show chat message inputs a la texting 
-    # TODO: only have this show after user has selected a chatbot
-    fluidRow(
-      column(9, textInput("chatInput", label = " ", width = "100%")),
+    sidebarPanel(
       
-      column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send"))) 
+      #Display chosen chatbot name and image 
+      imageOutput("chatbotImg"),
+      
+      textOutput("chatbotName"),
   
+      position = "left", width = 2),
+    
+    # Javascript for getting the action button to be triggered on user pressing enter 
+    tags$head(tags$script(HTML(jscode))),
+    `data-proxy-click` = "Send",
+    
+    mainPanel(
+      
+      # Show chat message inputs a la texting 
+      # TODO: only have this show after user has selected a chatbot
+      fluidRow(
+        column(9, textInput("chatInput", label = " ", width = "100%")),
+        
+        column(1, div( style = "margin-top: 20px;", actionButton(inputId = "Send", label = "Send"))) 
+    
+      ),
+      
+      # Show chat log
+      #htmlOutput("chatHTML"),
+      tableOutput("chatHTML"),
+      
+      # Show gif while "thinking"
+      tags$head(tags$style(type="text/css", "
+                               #loadmessage {
+                                 position: fixed;
+                                 top: 0px;
+                                 left: 0px;
+                                 width: 100%;
+                                 padding: 5px 0px 5px 0px;
+                                 text-align: center;
+                                 font-weight: bold;
+                                 font-size: 100%;
+                                 color: #000000;
+                                 background-color: #CCFF66;
+                                 z-index: 105;
+                               }
+                            ")),
+      
+      conditionalPanel(
+        condition="($('html').hasClass('shiny-busy'))",
+        
+        #busy = "busy_leafey.gif",
+        
+        #TODO: Fix this so it can be changed programmatically
+        
+        #tags$img(src="busy_leafey.gif")
+        tags$img(src=paste0(busy))
+        
+      )
+      
     ),
     
-    # Show chat log
-    htmlOutput("chatHTML"),
+    # Show the image of our chosen user, auto scaled to fit
+    tags$head(tags$style(
+      type="text/css",
+      "#userImg img {max-width: 100%; width: 100%; height: auto}"
+    )),
     
-    # Show gif while "thinking"
-    tags$head(tags$style(type="text/css", "
-                             #loadmessage {
-                               position: fixed;
-                               top: 0px;
-                               left: 0px;
-                               width: 100%;
-                               padding: 5px 0px 5px 0px;
-                               text-align: center;
-                               font-weight: bold;
-                               font-size: 100%;
-                               color: #000000;
-                               background-color: #CCFF66;
-                               z-index: 105;
-                             }
-                          ")),
+    sidebarPanel(
+      
+      imageOutput("userImg"),
+      
+      tags$p("User panel: This is you!"),
+      
+      # TODO: Display chosen user name and image 
+      #textOutput("userName"),
+      
+      position = "right", width = 2),
     
-    conditionalPanel(
-      condition="($('html').hasClass('shiny-busy'))",
-      
-      #busy = "busy_leafey.gif",
-      
-      #TODO: Fix this so it can be changed programmatically
-      
-      tags$img(src="busy_leafey.gif")
-      
     )
-    
-  ),
-  
-  # Show the image of our chosen user, auto scaled to fit
-  tags$head(tags$style(
-    type="text/css",
-    "#userImg img {max-width: 100%; width: 100%; height: auto}"
-  )),
-  
-  sidebarPanel(
-    
-    imageOutput("userImg"),
-    
-    tags$p("User panel placeholder"),
-    
-    # TODO: Display chosen user name and image 
-    #textOutput("userName"),
-    
-    position = "right", width = 2),
-  
   )
-)
 )
 
 #### Define server logic  ####
@@ -272,7 +273,7 @@ server <- function(input, output, session) {
     
   })
   
-  # Output: Pass chat log to output for user to see 
+  #### Output: Pass chat log to output for user to see  ####
   # TODO: Update to use one column (Message) with left and right align and overlay of "thought bubbles"
   output$chatHTML <- renderText({
     if(nrow(chat$dfnew)>0){
@@ -282,17 +283,22 @@ server <- function(input, output, session) {
                                                                 ifelse(Who == "User", "white", 
                                                                        "lightpink")))) %>%
         select(Chatbot, User) %>%
-        kable(escape = F,
+        kable(escape = F, linesep = "" ,
             col.names = NULL, longtable = T,
-            booktabs = T, align = c("lr")
+            booktabs = T, align = c("lr"), "html"
             ) %>%
-        column_spec(column = 1, width_min = "3in", width_max = "3in") %>%
+        column_spec(column = 1, width_min = "3in", width_max = "3in", ) %>%
         column_spec(column = 2, width_min = "3in", width_max = "3in") %>%
         kable_styling(
           font_size = 15,
-          bootstrap_options = c("responsive"),
+          bootstrap_options = c("responsive", "condensed"),
           full_width = T, position = "center"
-        )
+        ) #%>%
+        #scroll_box(width = "100%", height = "400px")
+        #scroll_box(width = "500px", height = "200px")
+        #scroll_box(width = "100%", height = "100%")
+      #max-width: 100%; width: ; height: auto}"
+      
     } else {
       # Addition for case without a first row causing error. This is essentially just a dummy table so it won't print an error. 
       kable(chat$dfnew %>%
@@ -334,6 +340,7 @@ server <- function(input, output, session) {
     # Load chatbot Leafey and initialize chat log
     if(input$chatbot == "Leafey") {
       source("chatbot_leafey.R")
+      busy = "busy_leafey.gif"
       chat$dfnew <- data.table(User = c(""), Chatbot = c("Leafey: Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."), Who = c("Chatbot"), Message = c("Hello! I'm Leafey. What do you want to talk about? I'm good at telling jokes."))
     }
     
@@ -344,7 +351,7 @@ server <- function(input, output, session) {
     }, deleteFile = FALSE)
     
     # Update flavor text for chosen Chatbot
-    output$chatbotName <- renderText({ paste("You have chosen: ", input$chatbot ) })
+    output$chatbotName <- renderText({ paste("Chatting with: ", input$chatbot ) })
     
   })
   
@@ -464,3 +471,146 @@ shinyApp(ui = ui, server = server)
 # 
 # df <- reactive(Results)
 
+# renderDataTable({
+#   datatable(data$data,
+#             extensions = 'Buttons',
+#             rownames = FALSE,
+#             filter = 'top',
+#             options = list(compact=TRUE,
+#                            dom = 'Blfrtip',
+#                            buttons = c('copy', 'csv'),
+#                            scrollX = TRUE,
+#                            search = list(regex = TRUE, caseInsensitive = FALSE, search = txt()),
+#                            lengthMenu = list(c(10,25,50,-1),
+#                                              c(10,25,50,"All"))))
+# })
+
+# if(nrow(df_meas) >0){
+#   plot_dis_data <- df_meas %>%
+#     filter(Numeric) %>%
+#     mutate(MeasurementNameOriginal = MeasurementName, 
+#            MeasurementName = paste0(ProcessName, "_", StepName, "_", RecipeName, "_", MeasurementName, "_", environment)) %>%
+#     group_by(MeasurementName) %>%
+#     mutate(Observations = n(),
+#            mean = signif(mean(MeasurementValueNumeric),3),
+#            median = signif(median(MeasurementValueNumeric),3),
+#            min = signif(min(MeasurementValueNumeric),3), 
+#            max = signif(max(MeasurementValueNumeric),3),
+#            sd = signif(sd(MeasurementValueNumeric),3),
+#            var = signif(var(MeasurementValueNumeric),3)) %>%
+#     mutate(UCL = mean + sd*3,
+#            LCL = mean - sd*3) %>%
+#     ungroup() %>%
+#     arrange(desc(var)) %>%
+#     unique()
+#   
+#   plot_tmp <- data.frame()
+#   plot_out <- data.frame()
+#   
+#   for(j in (unique(plot_dis_data$MeasurementName))){
+#     #j="HPM1.HP1.ProcessTime"   
+#     #j = "Defect Count"
+#     j = "INI_INI_DEFECT_INI_DEFECT_BEER21_V02_Percent Defect Area_plt"
+#     
+#     # Check for normality of the data (Gaussian distribution). This will inform if this is good data traditionally for SPC. 
+#     # In this case we will use Shapiro-Wilk’s. It provides a correlation between the data and the corresponding normal scores. 
+#     # Note that it is sensitive to sample size - with smaller sample sizes being more likely to pass. 
+#     shapiro_data_tmp <- plot_dis_data %>%
+#       filter(MeasurementName %in% j) %>%
+#       filter(!is.na(MeasurementValueNumeric)) %>%
+#       sample_n(ifelse(n() > 5000, 5000, n()))
+#     
+#     if(nrow(shapiro_data_tmp) > 50){
+#       shapiro <- shapiro.test(shapiro_data_tmp$MeasurementValueNumeric)
+#       # p-value > 0.05 implies distribution of data is significantly similar to Gaussian distribution
+#       # w-value is the Shapiro-Wilk statistic
+#       # Sample size should be between 50 and 5000
+#     }
+#     
+#     plot_tmp <- plot_dis_data %>%
+#       filter(MeasurementName %in% j) %>%
+#       mutate(Shapiro_test_p_value = shapiro$p.value) %>% 
+#       mutate(Gaussian = ifelse(Shapiro_test_p_value >= 0.05, TRUE, FALSE) ) %>%
+#       mutate(
+#         TrendSparkLine = spk_chr(
+#           MeasurementValueNumeric, type= "line", #One of 'line' (default), 'bar', 'tristate', 'discrete', 'bullet', 'pie' or 'box'
+#           # valueSpots = .$Value, 
+#           fillColor = FALSE, # "defaults to #cdf"
+#           normalRangeMin = min(unlist(.$LCL)),
+#           normalRangeMax = max(unlist(.$UCL)),
+#           normalRangeColor = "#cdf", #'lightgreen', #'#cdf"'
+#           lineWidth =1,
+#           # #drawNormalOnTop = TRUE,
+#           spotRadius = 3,
+#           spotColor = 'orange',
+#           maxSpotColor = 'orange',
+#           minSpotColor = 'orange',
+#           defaultPixelsPerValue = 10# defaults to 3 per value
+#         ),
+#       ) %>%
+#       arrange(desc(StartTS)) %>%
+#       mutate(MeasurementValueNumeric =as.numeric(MeasurementValueNumeric)) %>% #Make sure that everything is converted to a number
+#       filter(is.na(MeasurementValueNumeric) != TRUE) %>%
+#       slice(1) #%>% # Show most recent result only
+#     
+#     
+#     if(nrow(plot_out)<1){
+#       plot_out <- plot_tmp
+#     } else{
+#       plot_out <- rbind(plot_out, plot_tmp)
+#     }
+#     
+#   }
+#   
+#   out <- plot_out %>%
+#     select(ToolName, MeasurementName, Observations, mean,  median, min, max, sd, var, UCL, LCL, Shapiro_test_p_value, TrendSparkLine) %>%
+#     # select(MeasurementName, StepName, ToolName, Observations, mean,  median, min, max, sd, var, UCL, LCL, TrendSparkLine) %>%
+#     arrange(desc(var)) %>%
+#     #mutate(MeasurementName = cell_spec(MeasurementName, "html", color = "red")) %>%
+#     #mutate(MeasurementName = paste0(MeasurementName, " \n")) %>%
+#     #mutate( MeasurementName = cell_spec(MeasurementName, "html", color = ifelse((MeasurementName > UCL | MeasurementName < LCL), "red", "green"))) %>% #Color if OOS
+#     formattable::format_table(
+#       x = .,
+#       formatters = list(
+#         align=c("l")
+#         #linesep = ""
+#       )
+#     ) %>%
+#     kable_styling("striped", full_width = F, fixed_thead = T) %>% #font_size = 7,  
+#     #add_css_row(list('height', '50px'), rows = 3:12) # needs tableHTML
+#     column_spec(1, bold = T, border_right = T) %>%
+#     htmltools::HTML() %>%
+#     shiny::div() %>%
+#     sparkline::spk_add_deps()
+#   
+#   out
+# }
+
+# if(nrow(df_meas) >0){
+#   # For each dataName how many unique observations are there 
+#   plot_cat_data <- df_meas %>%
+#     filter(!Numeric) %>%
+#     group_by(MeasurementName) %>%
+#     mutate(observations = n(),
+#            unique_observations = n_distinct(MeasurementValue)) %>%
+#     arrange(desc(StartTS)) %>%
+#     slice(1) %>% # Show most recent result only
+#     ungroup() %>% 
+#     select(MeasurementName, StepName, ToolName, MeasurementValue, observations, unique_observations) %>% 
+#     rename("MeasurementValueExample" = "MeasurementValue") %>%
+#     arrange(desc(unique_observations))
+#   
+#   #datatable(plot_cat_data, filter = 'top') %>%
+#   datatable(plot_cat_data, filter = 'top', options = list(lengthMenu = c(15, 50, nrow(plot_cat_data))))  %>%
+#     #options = list(pageLength = 15, info = FALSE,
+#     #            lengthMenu = list(c(15, -1), c("15", "All")))) %>%
+#     #options = list(pageLength = 10, width="100%", scrollX = TRUE)) %>%
+#     formatStyle(
+#       'unique_observations',
+#       background = styleColorBar(plot_cat_data$unique_observations, 'lightblue'),
+#       # background = styleColorBar(plot_cat_data$unique_observations, 'steelblue'),
+#       backgroundSize = '100% 90%',
+#       backgroundRepeat = 'no-repeat',
+#       backgroundPosition = 'center'
+#     ) 
+# }

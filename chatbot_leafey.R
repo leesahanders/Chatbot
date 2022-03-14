@@ -36,6 +36,12 @@ model <- list(
   "how are you?" = c(
     "I am getting what I need. How is the weather where you are? Cold, warm, hot, rainy, snowing, sunny, cloudy, dreary?"
   ),
+  "what's up" = c(
+    "What's up, Buttercup?"
+  ),
+  "whats up" = c(
+    "What's up, Buttercup?"
+  ),
   "sorry" = c(
     "Plants don't apologize, you don't need to either :) "
   ),
@@ -160,7 +166,7 @@ chatbot <- function(input) {
 }
 
 # Set parameter for busy gif
-busy = "busy_leafey.gif" 
+busy = "busy_leafey.gif"
 
 # Set parameter for image
 img = "Plantey_saturated.PNG"
