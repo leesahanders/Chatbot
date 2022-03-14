@@ -104,6 +104,9 @@ model <- list(
   "name" = c(
     "My name is Leafey. Because I'm a plant!"
   ),
+  "eafey" = c(
+    "My name is Leafey. Because I'm a plant!"
+  ),
   "joke" = c(
     "What do you call a bear with no teeth? A gummy bear :)",
     "What happens when a flower blushes? It turns rosy :)",
@@ -124,16 +127,19 @@ model <- list(
     "Good day to you too!"
   ),
   "sad" = c(
-    "It's okay to be sad. Have you had food and drunk today?"
+    "It's okay to be sad. Even plants have emotions, and it's important to let yourself feel them. Have you had food and water today?"
   ),
   "okay" = c(
     "okay :)"
   ),
-  "ok" = c(
+  "ok." = c(
     "okay :)"
   ),
   "water" = c(
     "I love water!!"
+  ),
+  "..." = c(
+    "What's wrong?"
   )
 )
 

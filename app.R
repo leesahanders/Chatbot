@@ -5,6 +5,8 @@
 #TODO: Add prompt actions based on timer (IE Leafey will prompt user every 15 min if they've been rained on or if they need water)
 #TODO: Fix the log so that it will have a scrollbar and automatically scroll down as new answers are added https://stackoverflow.com/questions/54903663/r-shiny-app-making-a-log-that-scrolls-down-automatically 
 #TODO: Migrate from kable to DT https://rstudio.github.io/DT/shiny.html 
+#TODO: Doctor chatbot where you give it three symptoms and it returns a list of all medical conditions 
+#TODO: Hype man: chatbot that is just 200% over the top with motivational quotes
 
 #Accessed from: https://leesahanders.shinyapps.io/Chatbot/ 
 #Admin link: https://www.shinyapps.io/admin/#/application/5843948/logs 
