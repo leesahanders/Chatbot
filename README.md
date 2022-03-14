@@ -59,13 +59,22 @@ The Shiny app is essentially just a wrapper for the chatbot functions. The trick
 
 In order to use this feel free to clone the project and update the various sections as needed. Pay close attention to the section happening after the submit / chatbot selection action button is triggered. This is where the loading in of the appropriate chatbot is happening and various parameters are being set/reset. 
 
-#### Github link ribbon 
+#### Github link 
 
-Courtesy the [gitlink](https://github.com/colearendt/gitlink). 
-
+The fancy ribbon is courtesy the [gitlink](https://github.com/colearendt/gitlink). 
 ``` r
 ribbon_css("https://github.com/leesahanders/Chatbot", text = "Code on Github", fade = FALSE),
 ```
+
+A less fancy way to include a link would be: 
+``` r
+      # Adding div tag to the sidebar with git link           
+      tags$div(class="header", checked=NA,
+               #tags$p("Raw code located on Git"),
+               tags$a(href="https://github.com/leesahanders/Chatbot", "Raw code located on Git, check it out by clicking here")
+      ),
+```
+
 
 #### Using the enter key for triggering the action button 
 
