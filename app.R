@@ -4,16 +4,18 @@
 #TODO: Spread throughout app below as placeholders as well as here 
 #TODO: Add prompt actions based on timer (IE Leafey will prompt user every 15 min if they've been rained on or if they need water)
 
+#Accessed from: https://leesahanders.shinyapps.io/Chatbot/ 
+
 #### Initialize ####
 library(shiny)
 library(dplyr)
 library(lubridate)
 library(DT)
-library(tidyr)
+#library(tidyr)
 library(shinydashboard)
 library(shinythemes)
-library(odbc)
-library(shinyFeedback)
+#library(odbc)
+#library(shinyFeedback)
 library(data.table) 
 library(knitr)
 library(kableExtra)
@@ -115,7 +117,23 @@ ui <- shinyUI(fluidPage(theme = shinytheme("spacelab"),
     
     conditionalPanel(
       condition="($('html').hasClass('shiny-busy'))",
-      tags$img(src=busy)
+      
+      tags$img(src="busy_leafey.gif")
+      
+      # busy = "files/busy_leafey.gif",
+      # tags$img(src="files/busy_leafey.gif")
+      
+      # busy = "busy_leafey.gif",
+      # tags$img(src="www/busy_leafey.gif")
+      
+      # busy = "../www/busy_leafey.gif",
+      # busy = "\\www\\busy_leafey.gif",
+      # busy = "www/busy_leafey.gif",
+      # busy = "busy_leafey.gif",
+      # busy = "busy_leafey.gif",
+      # tags$img(src=busy)
+      # tags$img(src=busy)
+      
     )
     
   ),
@@ -324,6 +342,7 @@ shinyApp(ui = ui, server = server)
 #https://stackoverflow.com/questions/62139431/how-can-i-make-the-first-col-aligned-to-left-and-the-rest-aligned-to-center-with
 #https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
 #https://debruine.github.io/shinyintro/sharing.html
+#https://stackoverflow.com/questions/26004302/how-to-display-a-busy-indicator-in-a-shiny-app
 
 #### Archived code snippets ####
 

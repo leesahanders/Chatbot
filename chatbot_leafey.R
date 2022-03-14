@@ -144,7 +144,7 @@ chatbot <- function(input) {
 }
 
 # Set parameter for busy gif
-busy = "busy_leafey.gif" 
+#busy = "./www/busy_leafey.gif" 
 
 # Set parameter for image
 img = "Plantey_saturated.PNG"
