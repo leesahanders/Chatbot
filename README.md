@@ -109,26 +109,6 @@ Then inside the UI include the call to the javascript where "Send" is changed to
   `data-proxy-click` = "Send",
 ```
 
-#### Custom loading gif 
-
-Upcoming! 
-
-#### Image look up and display, autoscaling
-
-Upcoming!
-
-#### Making a table look like a texting screen
-
-Upcoming! 
-
-### Discord 
-
-Upcoming!
-
-Currently eyeing these resources for learning how to handle the integrations: 
- - https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/
- - https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
-
 
 ## References
 
@@ -148,4 +128,8 @@ And some resources that are more aspirational, for future plans and features:
  - https://shiny.rstudio.com/articles/notifications.html
  - https://community.rstudio.com/t/shiny-contest-submission-table-editor-shiny-app/23600
  - https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
+ 
+ Someday it would be cool to explore integrating a chatbot with discord, these resources look like they'd be useful: 
+ - https://github.com/jljsio/discordr - wrapper for Python package https://realpython.com/how-to-make-a-discord-bot-python/
+ - https://www.reddit.com/r/rprogramming/comments/epqfnl/making_a_discord_bot_in_r/
 
