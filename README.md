@@ -1,10 +1,10 @@
 # Chatbots
 
-Hey there! This is still a work in progress. Feel free to browse around and if you have any questions please feel free to reach out to my email at lisamaeanders@gmail.com . 
+Hey there! Feel free to browse around and if you have any questions please feel free to reach out to my email at lisamaeanders@gmail.com . 
 
 The goal of this project was to build a basic [chatbot](https://en.wikipedia.org/wiki/Chatbot) and explore a couple ways of hosting it. You can check it out in action in a Shiny app hosted at [leesahanders.shinyapps.io/Chatbot/](https://leesahanders.shinyapps.io/Chatbot/)
 
-## Meet the bots
+## Meet the bot
 
 | Chatbot | Name | Description | 
 | ------------- | ------------- | ------------- |
